@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beeple Dildo - Level Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 280px;
+            background: #0f0f1a;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 2px solid #333;
+        }
+
+        h1 {
+            color: #ff4444;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px 0 10px 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        /* Block Palette */
+        .block-type {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .block-type:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .block-type.selected {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .block-type.dude-mode {
+            border-color: #44ff44;
+            background: rgba(68, 255, 68, 0.1);
+        }
+
+        .block-preview {
+            width: 40px;
+            height: 30px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .block-info {
+            flex: 1;
+        }
+
+        .block-name {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .block-size {
+            color: #666;
+            font-size: 11px;
+        }
+
+        /* Level Info */
+        .input-group {
+            margin: 10px 0;
+        }
+
+        .input-group label {
+            display: block;
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 8px;
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .input-group textarea {
+            height: 60px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: #ff4444;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff6666;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-success {
+            background: #44ff44;
+            color: #000;
+        }
+
+        .btn-success:hover {
+            background: #66ff66;
+        }
+
+        /* Controls Help */
+        .controls-help {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        .controls-help h3 {
+            color: #666;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+            margin: 4px 0;
+        }
+
+        .control-key {
+            color: #ffcc44;
+            font-family: monospace;
+        }
+
+        /* Canvas Container */
+        #canvas-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100vh;
+            display: block;
+        }
+
+        /* Transform Toolbar */
+        #transform-toolbar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-btn.active {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.2);
+        }
+
+        .tool-btn .key-hint {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 9px;
+            color: #888;
+        }
+
+        /* Status Bar */
+        #status-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        #status-bar .highlight {
+            color: #ffcc44;
+        }
+
+        /* Export Modal */
+        #export-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #export-modal.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        .modal-content h2 {
+            color: #ff4444;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        #export-code {
+            width: 100%;
+            height: 400px;
+            background: #0f0f1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #44ff44;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 15px;
+            resize: vertical;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons .btn {
+            flex: 1;
+        }
+
+        /* Block count */
+        #block-count {
+            color: #888;
+            font-size: 12px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <h1>Level Editor</h1>
+        <p class="subtitle">Design your levels visually</p>
+
+        <h2>Level Info</h2>
+        <div class="input-group">
+            <label>Level Name</label>
+            <input type="text" id="level-name" value="New Level" />
+        </div>
+        <div class="input-group">
+            <label>Description</label>
+            <textarea id="level-desc">Knock down the dude!</textarea>
+        </div>
+
+        <h2>Block Types</h2>
+        <div id="block-palette"></div>
+
+        <div id="block-count">0 blocks placed</div>
+
+        <h2>Actions</h2>
+        <button class="btn btn-secondary" onclick="undo()" style="margin-bottom: 15px;">Undo (⌘Z)</button>
+        <button class="btn btn-success" onclick="exportLevel()">Export Level JSON</button>
+        <button class="btn btn-secondary" onclick="clearLevel()">Clear All Blocks</button>
+        <button class="btn btn-secondary" onclick="testLevel()">Test in Game</button>
+
+        <div class="controls-help">
+            <h3>Tools (Snap-to-Grid)</h3>
+            <div class="control-item"><span>Move (0.5 units)</span><span class="control-key">W or 1</span></div>
+            <div class="control-item"><span>Rotate (15°)</span><span class="control-key">2</span></div>
+            <div class="control-item"><span>Scale (0.25)</span><span class="control-key">3</span></div>
+            <h3 style="margin-top: 12px;">Mouse</h3>
+            <div class="control-item"><span>Place block</span><span class="control-key">Click ground</span></div>
+            <div class="control-item"><span>Transform</span><span class="control-key">Drag gizmo</span></div>
+            <div class="control-item"><span>Zoom</span><span class="control-key">Scroll</span></div>
+            <h3 style="margin-top: 12px;">View</h3>
+            <div class="control-item"><span>Toggle 3D/Top</span><span class="control-key">V</span></div>
+            <h3 style="margin-top: 12px;">Keyboard</h3>
+            <div class="control-item"><span>Undo</span><span class="control-key">⌘Z</span></div>
+            <div class="control-item"><span>Nudge X/Z</span><span class="control-key">Arrow keys</span></div>
+            <div class="control-item"><span>Move up/down</span><span class="control-key">Q / E</span></div>
+            <div class="control-item"><span>Rotate 90°</span><span class="control-key">R</span></div>
+            <div class="control-item"><span>Duplicate</span><span class="control-key">D</span></div>
+            <div class="control-item"><span>Delete</span><span class="control-key">X or Delete</span></div>
+            <div class="control-item"><span>Deselect</span><span class="control-key">Escape</span></div>
+        </div>
+    </div>
+
+    <!-- Canvas -->
+    <div id="canvas-container">
+        <canvas id="renderCanvas"></canvas>
+
+        <!-- Transform Toolbar -->
+        <div id="transform-toolbar">
+            <button class="tool-btn active" id="tool-move" onclick="setTool('move')" title="Move (W)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L12 22M12 2L8 6M12 2L16 6M12 22L8 18M12 22L16 18"/>
+                    <path d="M2 12L22 12M2 12L6 8M2 12L6 16M22 12L18 8M22 12L18 16"/>
+                </svg>
+            </button>
+            <button class="tool-btn" id="tool-rotate" onclick="setTool('rotate')" title="Rotate (2)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                    <polyline points="21 3 21 9 15 9"/>
+                </svg>
+            </button>
+            <button class="tool-btn" id="tool-scale" onclick="setTool('scale')" title="Scale (3)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="4" y="4" width="6" height="6"/>
+                    <rect x="14" y="14" width="6" height="6"/>
+                    <path d="M14 4L20 4L20 10"/>
+                    <path d="M10 20L4 20L4 14"/>
+                </svg>
+            </button>
+            <div style="width: 1px; background: #444; margin: 0 5px;"></div>
+            <button class="tool-btn" id="view-toggle" onclick="toggleView()" title="Toggle View (V)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                </svg>
+            </button>
+        </div>
+
+        <div id="status-bar">
+            <span id="status-text">Select a block type and click to place</span>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal">
+        <div class="modal-content">
+            <h2>Level Export</h2>
+            <p style="color: #888; margin-bottom: 15px;">Copy this JSON and paste it into the LEVELS array in game.js</p>
+            <textarea id="export-code" readonly></textarea>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="copyExport()">Copy to Clipboard</button>
+                <button class="btn btn-secondary" onclick="closeExportModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Babylon.js -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+
+    <script>
+        // Block type definitions (same as game.js)
+        const BLOCK_TYPES = {
+            STANDARD: { width: 1, height: 0.8, depth: 3, mass: 5, color: '#e63946', label: 'Standard', desc: '1 × 0.8 × 3' },
+            SMALL_CUBE: { width: 0.8, height: 0.8, depth: 0.8, mass: 2, color: '#457b9d', label: 'Small Cube', desc: '0.8³' },
+            LARGE_CUBE: { width: 2, height: 2, depth: 2, mass: 15, color: '#2a9d8f', label: 'Large Cube', desc: '2 × 2 × 2' },
+            PLANK: { width: 4, height: 0.4, depth: 1, mass: 4, color: '#e9c46a', label: 'Plank', desc: '4 × 0.4 × 1' },
+            PILLAR: { width: 0.6, height: 2.5, depth: 0.6, mass: 3, color: '#f4a261', label: 'Pillar', desc: '0.6 × 2.5 × 0.6' },
+            PLATFORM: { width: 3, height: 0.5, depth: 3, mass: 0, color: '#4a4a5a', label: 'Platform (Static)', desc: '3 × 0.5 × 3' },
+            HEAVY: { width: 1.5, height: 1, depth: 1.5, mass: 25, color: '#6c757d', label: 'Heavy Block', desc: '1.5 × 1 × 1.5' },
+        };
+
+        // Editor state
+        let canvas, engine, scene, camera;
+        let selectedBlockType = 'STANDARD';
+        let placedBlocks = [];
+        let selectedBlock = null;
+        let dudePosition = { x: 0, z: 0 };
+        let dudeMarker = null;
+        let isDudeMode = false;
+        let ground;
+
+        // Drag state
+        let isDragging = false;
+        let dragStartPoint = null;
+
+        // Gizmo state
+        let gizmoManager = null;
+        let currentTool = 'move'; // 'move', 'rotate', 'scale'
+        let gizmoUndoSaved = false;
+
+        // View state
+        let currentView = '3d'; // '3d' or 'top'
+
+        // Selection state (block OR dude)
+        let selectedDude = false;
+
+        // Undo system
+        let undoStack = [];
+        const MAX_UNDO = 50;
+
+        function saveUndoState(action) {
+            const state = {
+                action: action,
+                blocks: placedBlocks.map(b => ({
+                    typeName: b.typeName,
+                    position: b.mesh.position.clone(),
+                    rotation: b.rotation
+                })),
+                dudePosition: { ...dudePosition }
+            };
+            undoStack.push(state);
+            if (undoStack.length > MAX_UNDO) {
+                undoStack.shift();
+            }
+        }
+
+        function undo() {
+            if (undoStack.length === 0) {
+                updateStatus('Nothing to undo');
+                return;
+            }
+
+            const state = undoStack.pop();
+
+            // Clear current blocks
+            placedBlocks.forEach(block => block.mesh.dispose());
+            placedBlocks = [];
+            selectedBlock = null;
+
+            // Restore blocks from state
+            state.blocks.forEach(savedBlock => {
+                const type = BLOCK_TYPES[savedBlock.typeName];
+
+                const mesh = BABYLON.MeshBuilder.CreateBox("block_" + placedBlocks.length, {
+                    width: type.width,
+                    height: type.height,
+                    depth: type.depth
+                }, scene);
+
+                mesh.position = savedBlock.position.clone();
+                mesh.rotation.y = (savedBlock.rotation * Math.PI) / 180;
+
+                const mat = new BABYLON.StandardMaterial("mat_" + placedBlocks.length, scene);
+                mat.diffuseColor = BABYLON.Color3.FromHexString(type.color);
+                mat.specularColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+                mesh.material = mat;
+
+                mesh.metadata = {
+                    isEditorBlock: true,
+                    blockIndex: placedBlocks.length
+                };
+
+                placedBlocks.push({
+                    mesh: mesh,
+                    type: type,
+                    typeName: savedBlock.typeName,
+                    rotation: savedBlock.rotation
+                });
+            });
+
+            // Restore dude position
+            dudePosition = { ...state.dudePosition };
+            updateDudePosition();
+            updateBlockCount();
+
+            updateStatus(`Undo: ${state.action}`);
+        }
+
+        // Tool switching
+        function setTool(tool) {
+            currentTool = tool;
+
+            // Update toolbar UI
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tool-${tool}`).classList.add('active');
+
+            // Update gizmo manager
+            if (gizmoManager) {
+                gizmoManager.positionGizmoEnabled = (tool === 'move');
+                gizmoManager.rotationGizmoEnabled = (tool === 'rotate');
+                gizmoManager.scaleGizmoEnabled = (tool === 'scale');
+            }
+
+            const toolNames = { move: 'Move', rotate: 'Rotate', scale: 'Scale' };
+            updateStatus(`${toolNames[tool]} tool selected`);
+        }
+
+        // View toggle
+        function toggleView() {
+            if (currentView === '3d') {
+                // Switch to top-down view
+                currentView = 'top';
+                camera.alpha = 0;
+                camera.beta = 0.001;           // Straight down (can't be exactly 0)
+                camera.radius = 25;
+                camera.target = new BABYLON.Vector3(0, 0, 0);
+                document.getElementById('view-toggle').classList.add('active');
+                updateStatus('Top-down view - Press V to return to 3D');
+            } else {
+                // Switch back to 3D view
+                currentView = '3d';
+                camera.alpha = -Math.PI / 2;
+                camera.beta = Math.PI / 3;     // Angled view
+                camera.radius = 20;
+                camera.target = new BABYLON.Vector3(0, 2, 0);
+                document.getElementById('view-toggle').classList.remove('active');
+                updateStatus('3D view - Press V for top-down');
+            }
+        }
+
+        // Snap settings
+        const SNAP_POSITION = 0.5;      // Position snaps to 0.5 units
+        const SNAP_ROTATION = Math.PI / 12;  // Rotation snaps to 15 degrees
+        const SNAP_SCALE = 0.25;        // Scale snaps to 0.25 increments
+
+        function initGizmos() {
+            // Create gizmo manager
+            gizmoManager = new BABYLON.GizmoManager(scene);
+
+            // Enable all gizmos initially to configure them
+            gizmoManager.positionGizmoEnabled = true;
+            gizmoManager.rotationGizmoEnabled = true;
+            gizmoManager.scaleGizmoEnabled = true;
+            gizmoManager.boundingBoxGizmoEnabled = false;
+
+            // Configure position gizmo
+            gizmoManager.gizmos.positionGizmo.updateGizmoRotationToMatchAttachedMesh = false;
+            gizmoManager.gizmos.positionGizmo.scaleRatio = 1.2;
+            gizmoManager.gizmos.positionGizmo.snapDistance = SNAP_POSITION;
+
+            // Configure rotation gizmo - snap to 15 degree increments
+            gizmoManager.gizmos.rotationGizmo.snapDistance = SNAP_ROTATION;
+            gizmoManager.gizmos.rotationGizmo.updateGizmoRotationToMatchAttachedMesh = false;
+
+            // Configure scale gizmo - snap to 0.25 increments
+            gizmoManager.gizmos.scaleGizmo.snapDistance = SNAP_SCALE;
+            gizmoManager.gizmos.scaleGizmo.sensitivity = 3; // Make scaling less sensitive
+
+            // Now disable rotation and scale (start with move tool)
+            gizmoManager.rotationGizmoEnabled = false;
+            gizmoManager.scaleGizmoEnabled = false;
+
+            // Don't attach to anything by default (we'll control it)
+            gizmoManager.attachableMeshes = [];
+            gizmoManager.usePointerToAttachGizmos = false;
+
+            // Handle drag start - save undo state
+            const setupGizmoDragHandlers = (gizmo) => {
+                if (!gizmo) return;
+
+                // Position gizmo has xGizmo, yGizmo, zGizmo
+                ['xGizmo', 'yGizmo', 'zGizmo'].forEach(axis => {
+                    if (gizmo[axis] && gizmo[axis].dragBehavior) {
+                        gizmo[axis].dragBehavior.onDragStartObservable.add(() => {
+                            if (!gizmoUndoSaved) {
+                                saveUndoState('gizmo transform');
+                                gizmoUndoSaved = true;
+                            }
+                        });
+                        gizmo[axis].dragBehavior.onDragEndObservable.add(() => {
+                            gizmoUndoSaved = false;
+                            // Snap position to grid after move
+                            if (selectedBlock && currentTool === 'move') {
+                                const mesh = selectedBlock.mesh;
+                                mesh.position.x = Math.round(mesh.position.x * 2) / 2;
+                                mesh.position.y = Math.round(mesh.position.y * 2) / 2;
+                                mesh.position.z = Math.round(mesh.position.z * 2) / 2;
+                            }
+                            // Update dude position if dude was moved
+                            if (selectedDude && currentTool === 'move') {
+                                dudeMarker.position.x = Math.round(dudeMarker.position.x * 2) / 2;
+                                dudeMarker.position.z = Math.round(dudeMarker.position.z * 2) / 2;
+                                // Sync dudePosition state
+                                dudePosition.x = dudeMarker.position.x;
+                                dudePosition.z = dudeMarker.position.z;
+                            }
+                            updateDudePosition();
+                            updateBlockCount();
+                        });
+                    }
+                });
+            };
+
+            // Setup handlers for position gizmo
+            setupGizmoDragHandlers(gizmoManager.gizmos.positionGizmo);
+
+            // Rotation gizmo handlers
+            if (gizmoManager.gizmos.rotationGizmo) {
+                ['xGizmo', 'yGizmo', 'zGizmo'].forEach(axis => {
+                    if (gizmoManager.gizmos.rotationGizmo[axis] &&
+                        gizmoManager.gizmos.rotationGizmo[axis].dragBehavior) {
+                        gizmoManager.gizmos.rotationGizmo[axis].dragBehavior.onDragStartObservable.add(() => {
+                            if (!gizmoUndoSaved) {
+                                saveUndoState('gizmo rotate');
+                                gizmoUndoSaved = true;
+                            }
+                        });
+                        gizmoManager.gizmos.rotationGizmo[axis].dragBehavior.onDragEndObservable.add(() => {
+                            gizmoUndoSaved = false;
+                            // Update block rotation data
+                            if (selectedBlock) {
+                                selectedBlock.rotation = (selectedBlock.mesh.rotation.y * 180 / Math.PI) % 360;
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Scale gizmo handlers
+            if (gizmoManager.gizmos.scaleGizmo) {
+                ['xGizmo', 'yGizmo', 'zGizmo', 'uniformScaleGizmo'].forEach(axis => {
+                    if (gizmoManager.gizmos.scaleGizmo[axis] &&
+                        gizmoManager.gizmos.scaleGizmo[axis].dragBehavior) {
+                        gizmoManager.gizmos.scaleGizmo[axis].dragBehavior.onDragStartObservable.add(() => {
+                            if (!gizmoUndoSaved) {
+                                saveUndoState('gizmo scale');
+                                gizmoUndoSaved = true;
+                            }
+                        });
+                        gizmoManager.gizmos.scaleGizmo[axis].dragBehavior.onDragEndObservable.add(() => {
+                            gizmoUndoSaved = false;
+                        });
+                    }
+                });
+            }
+
+            console.log('Gizmo manager initialized');
+        }
+
+        function attachGizmoToBlock(blockData) {
+            if (!gizmoManager || !blockData) {
+                if (gizmoManager) {
+                    gizmoManager.attachToMesh(null);
+                }
+                return;
+            }
+            gizmoManager.attachToMesh(blockData.mesh);
+        }
+
+        // Initialize
+        window.onload = function() {
+            initBabylon();
+            createBlockPalette();
+        };
+
+        function initBabylon() {
+            canvas = document.getElementById('renderCanvas');
+            engine = new BABYLON.Engine(canvas, true);
+
+            scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color4(0.08, 0.08, 0.12, 1);
+
+            // Camera - fixed position, use V to toggle views
+            camera = new BABYLON.ArcRotateCamera(
+                "camera",
+                -Math.PI / 2,
+                Math.PI / 3,
+                20,
+                new BABYLON.Vector3(0, 2, 0),
+                scene
+            );
+            camera.lowerRadiusLimit = 5;
+            camera.upperRadiusLimit = 50;
+            // Allow camera to go fully vertical (top-down)
+            camera.lowerBetaLimit = 0.001;
+            camera.upperBetaLimit = Math.PI;
+
+            // Scroll to zoom
+            canvas.addEventListener('wheel', (evt) => {
+                camera.radius += evt.deltaY * 0.02;
+                camera.radius = Math.max(camera.lowerRadiusLimit, Math.min(camera.upperRadiusLimit, camera.radius));
+                evt.preventDefault();
+            });
+
+            // Lighting
+            const ambient = new BABYLON.HemisphericLight("ambient", new BABYLON.Vector3(0, 1, 0), scene);
+            ambient.intensity = 0.6;
+
+            const directional = new BABYLON.DirectionalLight("dir", new BABYLON.Vector3(-1, -2, 1), scene);
+            directional.intensity = 0.8;
+
+            // Ground
+            ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 30 }, scene);
+            const groundMat = new BABYLON.StandardMaterial("groundMat", scene);
+            groundMat.diffuseColor = new BABYLON.Color3(0.15, 0.15, 0.2);
+            groundMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            ground.material = groundMat;
+
+            // Grid lines
+            createGrid();
+
+            // Dude marker
+            createDudeMarker();
+
+            // Click/drag handling
+            scene.onPointerDown = (evt, pickResult) => {
+                handlePointerDown(evt, pickResult);
+            };
+
+            scene.onPointerMove = (evt, pickResult) => {
+                if (isDragging && selectedBlock) {
+                    handleDrag(evt, pickResult);
+                }
+            };
+
+            scene.onPointerUp = (evt) => {
+                isDragging = false;
+                dragStartPoint = null;
+            };
+
+            // Keyboard handling
+            window.addEventListener('keydown', handleKeyDown);
+
+            // Initialize gizmos
+            initGizmos();
+
+            // Render loop
+            engine.runRenderLoop(() => scene.render());
+            window.addEventListener('resize', () => engine.resize());
+        }
+
+        function createGrid() {
+            const gridSize = 30;
+            const step = 1;
+
+            for (let i = -gridSize/2; i <= gridSize/2; i += step) {
+                // Lines along X
+                const lineX = BABYLON.MeshBuilder.CreateLines("gridX" + i, {
+                    points: [
+                        new BABYLON.Vector3(-gridSize/2, 0.01, i),
+                        new BABYLON.Vector3(gridSize/2, 0.01, i)
+                    ]
+                }, scene);
+                lineX.color = new BABYLON.Color3(0.2, 0.2, 0.25);
+
+                // Lines along Z
+                const lineZ = BABYLON.MeshBuilder.CreateLines("gridZ" + i, {
+                    points: [
+                        new BABYLON.Vector3(i, 0.01, -gridSize/2),
+                        new BABYLON.Vector3(i, 0.01, gridSize/2)
+                    ]
+                }, scene);
+                lineZ.color = new BABYLON.Color3(0.2, 0.2, 0.25);
+            }
+        }
+
+        function createDudeMarker() {
+            // Create a simple cylinder to represent dude position
+            dudeMarker = BABYLON.MeshBuilder.CreateCylinder("dudeMarker", {
+                height: 3,
+                diameterTop: 0.8,
+                diameterBottom: 1.2
+            }, scene);
+
+            const dudeMat = new BABYLON.StandardMaterial("dudeMat", scene);
+            dudeMat.diffuseColor = new BABYLON.Color3(1, 0.8, 0.6);
+            dudeMat.emissiveColor = new BABYLON.Color3(0.2, 0.15, 0.1);
+            dudeMarker.material = dudeMat;
+
+            // Make dude selectable like blocks
+            dudeMarker.metadata = {
+                isDude: true
+            };
+
+            updateDudePosition();
+        }
+
+        function updateDudePosition() {
+            // Find highest block near dude position
+            let maxY = 0;
+            placedBlocks.forEach(block => {
+                const dx = Math.abs(block.mesh.position.x - dudePosition.x);
+                const dz = Math.abs(block.mesh.position.z - dudePosition.z);
+                if (dx < 2 && dz < 2) {
+                    const blockTop = block.mesh.position.y + block.type.height / 2;
+                    if (blockTop > maxY) maxY = blockTop;
+                }
+            });
+
+            dudeMarker.position = new BABYLON.Vector3(
+                dudePosition.x,
+                maxY + 1.5,
+                dudePosition.z
+            );
+        }
+
+        function createBlockPalette() {
+            const palette = document.getElementById('block-palette');
+
+            // Add dude placement option first
+            const dudeDiv = document.createElement('div');
+            dudeDiv.className = 'block-type';
+            dudeDiv.id = 'dude-selector';
+            dudeDiv.innerHTML = `
+                <div class="block-preview" style="background: linear-gradient(135deg, #ffcc99, #cc9966);"></div>
+                <div class="block-info">
+                    <div class="block-name">Place Dude</div>
+                    <div class="block-size">Click to set position</div>
+                </div>
+            `;
+            dudeDiv.onclick = () => selectDudeMode();
+            palette.appendChild(dudeDiv);
+
+            // Add block types
+            for (const [key, type] of Object.entries(BLOCK_TYPES)) {
+                const div = document.createElement('div');
+                div.className = 'block-type';
+                div.dataset.type = key;
+
+                div.innerHTML = `
+                    <div class="block-preview" style="background: ${type.color};"></div>
+                    <div class="block-info">
+                        <div class="block-name">${type.label}</div>
+                        <div class="block-size">${type.desc}</div>
+                    </div>
+                `;
+
+                div.onclick = () => selectBlockType(key);
+                palette.appendChild(div);
+            }
+
+            // Select first block type by default
+            selectBlockType('STANDARD');
+        }
+
+        function selectBlockType(type) {
+            selectedBlockType = type;
+            isDudeMode = false;
+
+            // Update UI
+            document.querySelectorAll('.block-type').forEach(el => {
+                el.classList.remove('selected', 'dude-mode');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+
+            updateStatus(`Selected: ${BLOCK_TYPES[type].label} - Click ground to place`);
+        }
+
+        function selectDudeMode() {
+            isDudeMode = true;
+            selectedBlockType = null;
+
+            // Update UI
+            document.querySelectorAll('.block-type').forEach(el => {
+                el.classList.remove('selected', 'dude-mode');
+            });
+            document.getElementById('dude-selector').classList.add('dude-mode');
+
+            updateStatus('Click to place the Dude');
+        }
+
+        function handlePointerDown(evt, pickResult) {
+            if (evt.button !== 0) return; // Left click only
+
+            if (pickResult.hit) {
+                const pickedMesh = pickResult.pickedMesh;
+
+                // Check if clicked on ground
+                if (pickedMesh === ground) {
+                    if (isDudeMode) {
+                        // Place dude
+                        saveUndoState('move dude');
+                        dudePosition.x = Math.round(pickResult.pickedPoint.x * 2) / 2;
+                        dudePosition.z = Math.round(pickResult.pickedPoint.z * 2) / 2;
+                        updateDudePosition();
+                        updateStatus(`Dude placed at (${dudePosition.x}, ${dudePosition.z})`);
+                    } else if (selectedBlockType) {
+                        // Place new block (undo state saved in placeBlock)
+                        placeBlock(pickResult.pickedPoint);
+                        // Start dragging the newly placed block
+                        isDragging = true;
+                        dragStartPoint = pickResult.pickedPoint.clone();
+                    }
+                }
+                // Check if clicked on dude marker
+                else if (pickedMesh === dudeMarker || (pickedMesh.metadata && pickedMesh.metadata.isDude)) {
+                    selectDude();
+                }
+                // Check if clicked on a block
+                else if (pickedMesh.metadata && pickedMesh.metadata.isEditorBlock) {
+                    selectBlock(pickedMesh);
+                    // Save state before drag starts
+                    saveUndoState('drag block');
+                    // Start dragging the selected block
+                    isDragging = true;
+                    dragStartPoint = pickResult.pickedPoint ? pickResult.pickedPoint.clone() : null;
+                }
+            }
+        }
+
+        function handleDrag(evt, pickResult) {
+            if (!selectedBlock || !isDragging) return;
+
+            // Cast ray to ground plane
+            const ray = scene.createPickingRay(scene.pointerX, scene.pointerY, BABYLON.Matrix.Identity(), camera);
+            const groundPlane = BABYLON.Plane.FromPositionAndNormal(
+                new BABYLON.Vector3(0, selectedBlock.mesh.position.y, 0),
+                new BABYLON.Vector3(0, 1, 0)
+            );
+
+            const distance = ray.intersectsPlane(groundPlane);
+            if (distance) {
+                const hitPoint = ray.origin.add(ray.direction.scale(distance));
+
+                // Snap to grid (0.5 increments)
+                const x = Math.round(hitPoint.x * 2) / 2;
+                const z = Math.round(hitPoint.z * 2) / 2;
+
+                selectedBlock.mesh.position.x = x;
+                selectedBlock.mesh.position.z = z;
+
+                updateDudePosition();
+            }
+        }
+
+        function placeBlock(point) {
+            saveUndoState('place block');
+
+            const type = BLOCK_TYPES[selectedBlockType];
+
+            // Snap to grid (0.5 increments)
+            const x = Math.round(point.x * 2) / 2;
+            const z = Math.round(point.z * 2) / 2;
+            const y = type.height / 2; // Start on ground
+
+            const mesh = BABYLON.MeshBuilder.CreateBox("block_" + placedBlocks.length, {
+                width: type.width,
+                height: type.height,
+                depth: type.depth
+            }, scene);
+
+            mesh.position = new BABYLON.Vector3(x, y, z);
+
+            const mat = new BABYLON.StandardMaterial("mat_" + placedBlocks.length, scene);
+            mat.diffuseColor = BABYLON.Color3.FromHexString(type.color);
+            mat.specularColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+            mesh.material = mat;
+
+            mesh.metadata = {
+                isEditorBlock: true,
+                blockIndex: placedBlocks.length
+            };
+
+            const blockData = {
+                mesh: mesh,
+                type: type,
+                typeName: selectedBlockType,
+                rotation: 0
+            };
+
+            placedBlocks.push(blockData);
+            selectBlock(mesh);
+            updateBlockCount();
+            updateDudePosition();
+
+            updateStatus(`Placed ${type.label} at (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
+        }
+
+        function selectBlock(mesh) {
+            // Deselect previous block
+            if (selectedBlock) {
+                selectedBlock.mesh.renderOutline = false;
+            }
+            // Deselect dude if selected
+            if (selectedDude) {
+                dudeMarker.renderOutline = false;
+                selectedDude = false;
+            }
+
+            // Find block data
+            const blockData = placedBlocks.find(b => b.mesh === mesh);
+            if (blockData) {
+                selectedBlock = blockData;
+                mesh.renderOutline = true;
+                mesh.outlineWidth = 0.1;
+                mesh.outlineColor = new BABYLON.Color3(1, 1, 0);
+
+                // Attach gizmo
+                attachGizmoToBlock(blockData);
+
+                const toolNames = { move: 'Move', rotate: 'Rotate', scale: 'Scale' };
+                updateStatus(`Selected block - ${toolNames[currentTool]} tool active. W/E/R to switch tools.`);
+            }
+        }
+
+        function deselectBlock() {
+            if (selectedBlock) {
+                selectedBlock.mesh.renderOutline = false;
+                selectedBlock = null;
+            }
+            if (selectedDude) {
+                dudeMarker.renderOutline = false;
+                selectedDude = false;
+            }
+
+            // Detach gizmo
+            attachGizmoToBlock(null);
+            updateStatus('Select a block type and click to place');
+        }
+
+        function selectDude() {
+            // Deselect any block first
+            if (selectedBlock) {
+                selectedBlock.mesh.renderOutline = false;
+                selectedBlock = null;
+            }
+
+            selectedDude = true;
+            dudeMarker.renderOutline = true;
+            dudeMarker.outlineWidth = 0.1;
+            dudeMarker.outlineColor = new BABYLON.Color3(0.4, 1, 0.4); // Green for dude
+
+            // Attach gizmo to dude
+            if (gizmoManager) {
+                gizmoManager.attachToMesh(dudeMarker);
+            }
+
+            const toolNames = { move: 'Move', rotate: 'Rotate', scale: 'Scale' };
+            updateStatus(`Dude selected - ${toolNames[currentTool]} tool active`);
+        }
+
+        function handleKeyDown(evt) {
+            // Cmd+Z / Ctrl+Z for undo (works regardless of selection)
+            if ((evt.metaKey || evt.ctrlKey) && evt.code === 'KeyZ') {
+                undo();
+                evt.preventDefault();
+                return;
+            }
+
+            // Tool switching (W/E/R) - works even without selection
+            if (evt.code === 'KeyW') {
+                setTool('move');
+                evt.preventDefault();
+                return;
+            }
+            if (evt.code === 'KeyE' && !selectedBlock) {
+                // E for rotate tool only when nothing selected (E is also up/down)
+                setTool('rotate');
+                evt.preventDefault();
+                return;
+            }
+            if (evt.code === 'KeyR' && !selectedBlock) {
+                // R for scale tool only when nothing selected (R is also rotate 90)
+                setTool('scale');
+                evt.preventDefault();
+                return;
+            }
+
+            // Number keys for tool switching (always work)
+            if (evt.code === 'Digit1') {
+                setTool('move');
+                evt.preventDefault();
+                return;
+            }
+            if (evt.code === 'Digit2') {
+                setTool('rotate');
+                evt.preventDefault();
+                return;
+            }
+            if (evt.code === 'Digit3') {
+                setTool('scale');
+                evt.preventDefault();
+                return;
+            }
+
+            // View toggle
+            if (evt.code === 'KeyV') {
+                toggleView();
+                evt.preventDefault();
+                return;
+            }
+
+            if (!selectedBlock) return;
+
+            const step = 0.5;
+            const mesh = selectedBlock.mesh;
+
+            switch (evt.code) {
+                case 'ArrowUp':
+                    saveUndoState('move');
+                    mesh.position.z -= step;
+                    evt.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    saveUndoState('move');
+                    mesh.position.z += step;
+                    evt.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    saveUndoState('move');
+                    mesh.position.x -= step;
+                    evt.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    saveUndoState('move');
+                    mesh.position.x += step;
+                    evt.preventDefault();
+                    break;
+                case 'KeyQ':
+                    saveUndoState('move down');
+                    mesh.position.y -= step;
+                    evt.preventDefault();
+                    break;
+                case 'KeyE':
+                    saveUndoState('move up');
+                    mesh.position.y += step;
+                    evt.preventDefault();
+                    break;
+                case 'KeyR':
+                    saveUndoState('rotate');
+                    selectedBlock.rotation = (selectedBlock.rotation + 90) % 360;
+                    mesh.rotation.y = (selectedBlock.rotation * Math.PI) / 180;
+                    evt.preventDefault();
+                    break;
+                case 'Delete':
+                case 'KeyX':
+                    deleteSelectedBlock();
+                    evt.preventDefault();
+                    break;
+                case 'KeyD':
+                    duplicateSelectedBlock();
+                    evt.preventDefault();
+                    break;
+                case 'Escape':
+                    deselectBlock();
+                    evt.preventDefault();
+                    break;
+            }
+
+            updateDudePosition();
+        }
+
+        function deleteSelectedBlock() {
+            if (!selectedBlock) return;
+
+            saveUndoState('delete block');
+
+            const index = placedBlocks.indexOf(selectedBlock);
+            if (index > -1) {
+                selectedBlock.mesh.dispose();
+                placedBlocks.splice(index, 1);
+                selectedBlock = null;
+                updateBlockCount();
+                updateDudePosition();
+                updateStatus('Block deleted');
+            }
+        }
+
+        function duplicateSelectedBlock() {
+            if (!selectedBlock) return;
+
+            saveUndoState('duplicate block');
+
+            const oldType = selectedBlockType;
+            selectedBlockType = selectedBlock.typeName;
+
+            // Duplicate at exact same position
+            const newPos = selectedBlock.mesh.position.clone();
+
+            placeBlock(newPos);
+
+            // Copy rotation
+            const newBlock = placedBlocks[placedBlocks.length - 1];
+            newBlock.rotation = selectedBlock.rotation;
+            newBlock.mesh.rotation.y = selectedBlock.mesh.rotation.y;
+
+            selectedBlockType = oldType;
+            updateStatus('Block duplicated - drag to move');
+        }
+
+        function clearLevel() {
+            if (!confirm('Clear all blocks?')) return;
+
+            saveUndoState('clear all');
+
+            placedBlocks.forEach(block => block.mesh.dispose());
+            placedBlocks = [];
+            selectedBlock = null;
+            dudePosition = { x: 0, z: 0 };
+            updateDudePosition();
+            updateBlockCount();
+            updateStatus('Level cleared');
+        }
+
+        function updateBlockCount() {
+            document.getElementById('block-count').textContent = `${placedBlocks.length} blocks placed`;
+        }
+
+        function updateStatus(text) {
+            document.getElementById('status-text').textContent = text;
+        }
+
+        function exportLevel() {
+            const levelName = document.getElementById('level-name').value || 'New Level';
+            const levelDesc = document.getElementById('level-desc').value || 'Knock down the dude!';
+
+            const blocks = placedBlocks.map(block => {
+                const pos = block.mesh.position;
+                const blockDef = {
+                    type: `'${block.typeName}'`,
+                    position: `{ x: ${pos.x.toFixed(1)}, y: ${pos.y.toFixed(1)}, z: ${pos.z.toFixed(1)} }`
+                };
+
+                if (block.rotation !== 0) {
+                    blockDef.rotation = block.rotation;
+                }
+
+                return blockDef;
+            });
+
+            // Format the output
+            let output = `    // Level: ${levelName}\n`;
+            output += `    {\n`;
+            output += `        name: "${levelName}",\n`;
+            output += `        description: "${levelDesc}",\n`;
+            output += `        dudePosition: { x: ${dudePosition.x}, z: ${dudePosition.z} },\n`;
+            output += `        blocks: [\n`;
+
+            blocks.forEach((block, i) => {
+                let line = `            { type: ${block.type}, position: ${block.position}`;
+                if (block.rotation) {
+                    line += `, rotation: ${block.rotation}`;
+                }
+                line += ` }`;
+                if (i < blocks.length - 1) line += ',';
+                output += line + '\n';
+            });
+
+            output += `        ]\n`;
+            output += `    },`;
+
+            document.getElementById('export-code').value = output;
+            document.getElementById('export-modal').classList.add('visible');
+        }
+
+        function copyExport() {
+            const code = document.getElementById('export-code');
+            code.select();
+            document.execCommand('copy');
+            updateStatus('Copied to clipboard!');
+        }
+
+        function closeExportModal() {
+            document.getElementById('export-modal').classList.remove('visible');
+        }
+
+        function testLevel() {
+            // Store level in localStorage and open game
+            const levelData = {
+                name: document.getElementById('level-name').value || 'Test Level',
+                description: document.getElementById('level-desc').value || 'Test level',
+                dudePosition: dudePosition,
+                blocks: placedBlocks.map(block => ({
+                    type: block.typeName,
+                    position: {
+                        x: block.mesh.position.x,
+                        y: block.mesh.position.y,
+                        z: block.mesh.position.z
+                    },
+                    rotation: block.rotation || 0
+                }))
+            };
+
+            localStorage.setItem('testLevel', JSON.stringify(levelData));
+            window.open('index.html?test=true', '_blank');
+        }
+    </script>
+</body>
+</html>

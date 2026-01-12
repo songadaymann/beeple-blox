@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEEPLE BLOX</title>
+    <!-- Jost font (thin) + Space Grotesk for contrast -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300&family=Space+Grotesk:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            overflow: hidden;
+            font-family: 'Jost', sans-serif;
+            font-weight: 200;
+            letter-spacing: -0.02em;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100vh;
+            display: block;
+        }
+
+        /* Webcam feed - picture-in-picture style */
+        #webcam-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            height: 240px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        #webcam {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror the webcam */
+        }
+
+        #hand-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1); /* Mirror to match webcam */
+        }
+
+        /* Crosshair for aiming */
+        #crosshair {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            pointer-events: none;
+            z-index: 50;
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s ease-out;
+        }
+
+        #crosshair::before,
+        #crosshair::after {
+            content: '';
+            position: absolute;
+            background: #ff4444;
+            border-radius: 2px;
+            box-shadow: 0 0 10px #ff4444, 0 0 20px #ff4444;
+        }
+
+        #crosshair::before {
+            width: 100%;
+            height: 4px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        #crosshair::after {
+            width: 4px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        #crosshair .dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #ff4444;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px #ff4444;
+        }
+
+        /* UI Overlay */
+        #ui-overlay {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+        }
+
+        #score {
+            font-size: 48px;
+            font-weight: 100;
+            letter-spacing: -0.03em;
+            text-shadow: 0 0 20px rgba(255, 68, 68, 0.8);
+            color: #ff4444;
+            margin-bottom: 10px;
+        }
+
+        #throws {
+            font-size: 18px;
+            font-weight: 200;
+            opacity: 0.7;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #level-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #level-number {
+            font-size: 28px;
+            font-weight: 100;
+            letter-spacing: -0.02em;
+            opacity: 0.9;
+            color: #ffcc44;
+        }
+
+        #level-name {
+            display: none;
+        }
+
+        #level-desc {
+            font-size: 14px;
+            font-weight: 300;
+            opacity: 0.7;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #throws-remaining {
+            margin-top: 15px;
+            font-size: 20px;
+            font-weight: 200;
+            color: #44ff44;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #throws-remaining.low {
+            color: #ffaa00;
+        }
+
+        #throws-remaining.critical {
+            color: #ff4444;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Game Over overlay */
+        #game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            color: white;
+        }
+
+        #game-over.hidden {
+            display: none;
+        }
+
+        #game-over h1 {
+            font-size: 64px;
+            font-weight: 100;
+            letter-spacing: -0.03em;
+            color: #ff4444;
+            margin-bottom: 20px;
+        }
+
+        #game-over .stats {
+            font-size: 24px;
+            font-weight: 200;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #game-over button {
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #game-over button:hover {
+            background: #ff6666;
+            transform: scale(1.05);
+        }
+
+        /* Level Complete overlay */
+        #level-complete {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            color: white;
+        }
+
+        #level-complete.hidden {
+            display: none;
+        }
+
+        #level-complete h1 {
+            font-size: 48px;
+            font-weight: 100;
+            letter-spacing: -0.03em;
+            color: #44ff44;
+            margin-bottom: 10px;
+        }
+
+        #level-complete .level-name {
+            display: none;
+        }
+
+        #level-complete .stats {
+            font-size: 20px;
+            font-weight: 200;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #level-complete button {
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: #44ff44;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #level-complete button:hover {
+            background: #66ff66;
+            transform: scale(1.05);
+        }
+
+        #instructions {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px 60px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            z-index: 200;
+            border: 2px solid rgba(255, 68, 68, 0.3);
+        }
+
+        #instructions h1 {
+            font-size: 48px;
+            font-weight: 100;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            color: #ff4444;
+        }
+
+        #instructions p {
+            font-size: 18px;
+            font-weight: 300;
+            line-height: 1.8;
+            opacity: 0.8;
+            margin-bottom: 15px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #instructions button {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #instructions button:hover {
+            background: #ff6666;
+            transform: scale(1.05);
+        }
+
+        #instructions #dude-preview {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+        }
+
+        #throw-indicator {
+            position: fixed;
+            bottom: 280px;
+            right: 20px;
+            width: 320px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            z-index: 100;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        #throw-indicator.ready {
+            opacity: 1;
+            background: rgba(68, 255, 68, 0.3);
+            border: 2px solid #44ff44;
+        }
+
+        #throw-indicator.thrown {
+            opacity: 1;
+            background: rgba(255, 68, 68, 0.5);
+            border: 2px solid #ff4444;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ========== MOBILE LANDSCAPE RESPONSIVE ========== */
+        @media (max-height: 500px) and (orientation: landscape) {
+            /* Smaller webcam for mobile */
+            #webcam-container {
+                width: 160px;
+                height: 120px;
+                bottom: 10px;
+                right: 10px;
+                border-radius: 10px;
+            }
+
+            /* Compact UI overlay */
+            #ui-overlay {
+                top: 10px;
+                left: 10px;
+            }
+
+            #score {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+
+            #throws {
+                font-size: 14px;
+            }
+
+            #level-info {
+                margin-top: 10px;
+                padding: 8px 12px;
+            }
+
+            #level-number {
+                font-size: 10px;
+            }
+
+            #level-name {
+                font-size: 16px;
+                margin: 3px 0;
+            }
+
+            #level-desc {
+                font-size: 11px;
+            }
+
+            #throws-remaining {
+                margin-top: 8px;
+                font-size: 14px;
+            }
+
+            /* Smaller throw indicator */
+            #throw-indicator {
+                width: 160px;
+                bottom: 140px;
+                right: 10px;
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            /* Smaller crosshair */
+            #crosshair {
+                width: 40px;
+                height: 40px;
+            }
+
+            #crosshair .dot {
+                width: 8px;
+                height: 8px;
+            }
+
+            /* Compact instructions modal */
+            #instructions {
+                padding: 20px 30px;
+                max-width: 90vw;
+            }
+
+            #instructions h1 {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+
+            #instructions p {
+                font-size: 14px;
+                line-height: 1.5;
+                margin-bottom: 8px;
+            }
+
+            #instructions button {
+                margin-top: 10px;
+                padding: 10px 30px;
+                font-size: 16px;
+            }
+
+            /* Compact game over */
+            #game-over h1 {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+
+            #game-over .stats {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            #game-over button {
+                padding: 10px 30px;
+                font-size: 16px;
+            }
+
+            /* Compact level complete */
+            #level-complete h1 {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+
+            #level-complete .level-name {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+
+            #level-complete .stats {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            #level-complete button {
+                padding: 10px 30px;
+                font-size: 16px;
+            }
+        }
+
+        /* Even smaller screens (small phones) */
+        @media (max-height: 400px) and (orientation: landscape) {
+            #webcam-container {
+                width: 120px;
+                height: 90px;
+            }
+
+            #throw-indicator {
+                width: 120px;
+                bottom: 110px;
+                font-size: 10px;
+                padding: 6px;
+            }
+
+            #score {
+                font-size: 24px;
+            }
+
+            #level-info {
+                padding: 6px 10px;
+            }
+
+            #level-name {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main 3D Canvas -->
+    <canvas id="renderCanvas"></canvas>
+
+    <!-- Crosshair -->
+    <div id="crosshair">
+        <div class="dot"></div>
+    </div>
+
+    <!-- UI Overlay -->
+    <div id="ui-overlay">
+        <div id="score">0</div>
+        <div id="throws">Throws: 0</div>
+        <div id="level-info">
+            <div id="level-number">Level 1</div>
+            <div id="level-name">The Stack</div>
+            <div id="level-desc">A simple tower. Knock it down!</div>
+            <div id="throws-remaining">Throws: 10</div>
+        </div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div id="game-over" class="hidden">
+        <h1>GAME OVER</h1>
+        <div class="stats">You reached Level <span id="final-level">1</span></div>
+        <div class="stats">Final Score: <span id="final-score">0</span></div>
+        <button id="restart-btn">Try Again</button>
+    </div>
+
+    <!-- Level Complete Overlay -->
+    <div id="level-complete" class="hidden">
+        <h1>LEVEL COMPLETE!</h1>
+        <div class="level-name" id="completed-level-name">The Stack</div>
+        <div class="stats">Throws remaining: <span id="throws-saved">5</span> (carried over!)</div>
+        <div class="stats">Score: <span id="level-score">0</span></div>
+        <button id="next-level-btn">Next Level</button>
+    </div>
+
+    <!-- Webcam Container -->
+    <div id="webcam-container">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="hand-canvas"></canvas>
+    </div>
+
+    <!-- Throw Indicator -->
+    <div id="throw-indicator">Move hand to aim</div>
+
+    <!-- Instructions Modal -->
+    <div id="instructions">
+        <canvas id="dude-preview"></canvas>
+        <h1>BEEPLE BLOX</h1>
+        <p>Knock Beeple down by throwing dildos at him.</p>
+        <p>Put your hand up and make a throwing motion.</p>
+        <button id="start-btn">Start Game</button>
+    </div>
+
+    <!-- Babylon.js -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <!-- Draco decoder for compressed meshes -->
+    <script src="https://cdn.babylonjs.com/draco_decoder_gltf.js"></script>
+    
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+    <!-- Game Code -->
+    <script src="game.js"></script>
+</body>
+</html>
+
