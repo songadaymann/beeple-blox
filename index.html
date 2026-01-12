@@ -195,6 +195,8 @@
             align-items: center;
             z-index: 300;
             color: white;
+            overflow-y: auto;
+            padding: 20px;
         }
 
         #game-over.hidden {
@@ -249,6 +251,8 @@
             align-items: center;
             z-index: 300;
             color: white;
+            overflow-y: auto;
+            padding: 20px;
         }
 
         #level-complete.hidden {
@@ -295,16 +299,25 @@
 
         #instructions {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 40px 60px;
-            border-radius: 20px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
             color: white;
             z-index: 200;
-            border: 2px solid rgba(255, 68, 68, 0.3);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        #instructions .instructions-content {
+            max-width: 500px;
+            width: 100%;
         }
 
         #instructions h1 {
@@ -318,14 +331,14 @@
         #instructions p {
             font-size: 18px;
             font-weight: 300;
-            line-height: 1.8;
+            line-height: 1.6;
             opacity: 0.8;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-family: 'Space Grotesk', sans-serif;
         }
 
         #instructions button {
-            margin-top: 20px;
+            margin-top: 15px;
             padding: 15px 40px;
             font-size: 20px;
             font-weight: 300;
@@ -344,41 +357,679 @@
         }
 
         #instructions #dude-preview {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 20px;
-        }
-
-        #throw-indicator {
-            position: fixed;
-            bottom: 280px;
-            right: 20px;
-            width: 320px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 10px;
-            color: white;
-            text-align: center;
-            z-index: 100;
-            font-size: 16px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        #throw-indicator.ready {
-            opacity: 1;
-            background: rgba(68, 255, 68, 0.3);
-            border: 2px solid #44ff44;
-        }
-
-        #throw-indicator.thrown {
-            opacity: 1;
-            background: rgba(255, 68, 68, 0.5);
-            border: 2px solid #ff4444;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 15px;
         }
 
         .hidden {
             display: none !important;
+        }
+
+        /* Leaderboard Button */
+        #leaderboard-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: rgba(255, 204, 68, 0.2);
+            color: #ffcc44;
+            border: 1px solid rgba(255, 204, 68, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 150;
+        }
+
+        #leaderboard-btn:hover {
+            background: rgba(255, 204, 68, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* Leaderboard Modal */
+        #leaderboard-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 400;
+            color: white;
+        }
+
+        #leaderboard-modal.hidden {
+            display: none;
+        }
+
+        #leaderboard-modal h1 {
+            font-size: 48px;
+            font-weight: 100;
+            letter-spacing: -0.03em;
+            color: #ffcc44;
+            margin-bottom: 30px;
+        }
+
+        #leaderboard-container {
+            width: 90%;
+            max-width: 600px;
+            max-height: 60vh;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .leaderboard-entry.top-3 {
+            background: rgba(255, 204, 68, 0.15);
+            border: 1px solid rgba(255, 204, 68, 0.3);
+        }
+
+        .leaderboard-rank {
+            font-size: 24px;
+            font-weight: 100;
+            font-family: 'Jost', sans-serif;
+            color: #ffcc44;
+            width: 50px;
+        }
+
+        .leaderboard-name {
+            flex: 1;
+            font-size: 16px;
+            margin-left: 15px;
+        }
+
+        .leaderboard-stats {
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .leaderboard-score {
+            color: #ff4444;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .leaderboard-details {
+            opacity: 0.6;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        #leaderboard-modal button.close-btn {
+            margin-top: 25px;
+            padding: 12px 35px;
+            font-size: 18px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #leaderboard-modal button.close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .leaderboard-loading {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+        }
+
+        .leaderboard-empty {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.5;
+        }
+
+        /* Submit Score Modal */
+        #submit-score-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 500;
+            color: white;
+        }
+
+        #submit-score-modal.hidden {
+            display: none;
+        }
+
+        #submit-score-modal h1 {
+            font-size: 36px;
+            font-weight: 100;
+            letter-spacing: -0.03em;
+            color: #44ff44;
+            margin-bottom: 10px;
+        }
+
+        #submit-score-modal .final-stats {
+            font-size: 24px;
+            font-weight: 200;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #submit-score-modal .final-stats .score-value {
+            color: #ff4444;
+            font-size: 36px;
+        }
+
+        .submit-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .submit-form input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-family: 'Space Grotesk', sans-serif;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            outline: none;
+        }
+
+        .submit-form input:focus {
+            border-color: #ffcc44;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .submit-form input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .wallet-connect-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            width: 100%;
+        }
+
+        .wallet-connect-section .label {
+            font-size: 12px;
+            opacity: 0.6;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .wallet-address {
+            font-size: 12px;
+            font-family: 'Space Grotesk', monospace;
+            color: #44ff44;
+            word-break: break-all;
+            text-align: center;
+        }
+
+        #connect-wallet-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: rgba(68, 136, 255, 0.3);
+            color: #88aaff;
+            border: 1px solid rgba(68, 136, 255, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #connect-wallet-btn:hover {
+            background: rgba(68, 136, 255, 0.5);
+        }
+
+        #connect-wallet-btn.connected {
+            background: rgba(68, 255, 68, 0.2);
+            color: #44ff44;
+            border-color: rgba(68, 255, 68, 0.5);
+        }
+
+        .submit-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        #submit-score-btn {
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: #44ff44;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #submit-score-btn:hover {
+            background: #66ff66;
+            transform: scale(1.05);
+        }
+
+        #submit-score-btn:disabled {
+            background: rgba(68, 255, 68, 0.3);
+            color: rgba(0, 0, 0, 0.5);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #skip-submit-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #skip-submit-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .submit-status {
+            font-size: 14px;
+            margin-top: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .submit-status.success {
+            color: #44ff44;
+        }
+
+        .submit-status.error {
+            color: #ff4444;
+        }
+
+        /* End Game Modal */
+        #end-game-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 600;
+            color: white;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        #end-game-modal.hidden {
+            display: none;
+        }
+
+        .end-game-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .end-game-header img.dildo-img {
+            width: 80px;
+            height: auto;
+        }
+
+        .end-game-header img.beeple-img {
+            width: 120px;
+            height: auto;
+        }
+
+        .end-game-title {
+            font-size: 48px;
+            font-weight: 100;
+            letter-spacing: 0.1em;
+            color: #e8847c;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .end-game-subtitle {
+            font-size: 20px;
+            font-weight: 200;
+            opacity: 0.8;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .end-game-stats {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-box .stat-value {
+            font-size: 42px;
+            font-weight: 100;
+            color: #e8847c;
+        }
+
+        .stat-box .stat-label {
+            font-size: 12px;
+            font-weight: 300;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Name input section in end modal */
+        .end-game-name-section {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .end-game-name-section input {
+            width: 100%;
+            padding: 12px 18px;
+            font-size: 16px;
+            font-family: 'Space Grotesk', sans-serif;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            outline: none;
+            text-align: center;
+        }
+
+        .end-game-name-section input:focus {
+            border-color: #e8847c;
+        }
+
+        .end-game-name-section input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .end-game-wallet-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .end-game-wallet-row button {
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: rgba(68, 136, 255, 0.2);
+            color: #88aaff;
+            border: 1px solid rgba(68, 136, 255, 0.4);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .end-game-wallet-row button:hover {
+            background: rgba(68, 136, 255, 0.4);
+        }
+
+        .end-game-wallet-row button.connected {
+            background: rgba(68, 255, 68, 0.2);
+            color: #44ff44;
+            border-color: rgba(68, 255, 68, 0.4);
+        }
+
+        .end-game-wallet-address {
+            font-family: 'Space Grotesk', monospace;
+            color: #44ff44;
+            font-size: 11px;
+        }
+
+        /* Action buttons */
+        .end-game-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .end-game-actions button {
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .end-game-actions .submit-btn {
+            background: #e8847c;
+            color: white;
+            border: none;
+        }
+
+        .end-game-actions .submit-btn:hover {
+            background: #f09990;
+            transform: scale(1.03);
+        }
+
+        .end-game-actions .submit-btn:disabled {
+            background: rgba(232, 132, 124, 0.4);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .end-game-actions .play-again-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .end-game-actions .play-again-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Share section */
+        .share-section {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .share-section .share-label {
+            font-size: 12px;
+            opacity: 0.5;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .share-buttons button {
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 300;
+            font-family: 'Jost', sans-serif;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .share-buttons button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .share-buttons button.twitter {
+            background: rgba(29, 161, 242, 0.2);
+            border-color: rgba(29, 161, 242, 0.4);
+            color: #1da1f2;
+        }
+
+        .share-buttons button.twitter:hover {
+            background: rgba(29, 161, 242, 0.35);
+        }
+
+        .share-buttons button.copied {
+            background: rgba(68, 255, 68, 0.2);
+            border-color: rgba(68, 255, 68, 0.4);
+            color: #44ff44;
+        }
+
+        /* Leaderboard section in end modal */
+        .end-game-leaderboard {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .end-game-leaderboard h2 {
+            font-size: 20px;
+            font-weight: 200;
+            color: #e8847c;
+            margin-bottom: 15px;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .end-leaderboard-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .end-leaderboard-entry {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .end-leaderboard-entry.highlight {
+            background: rgba(232, 132, 124, 0.2);
+            border: 1px solid rgba(232, 132, 124, 0.4);
+        }
+
+        .end-leaderboard-entry.top-3 {
+            background: rgba(255, 204, 68, 0.1);
+        }
+
+        .end-leaderboard-rank {
+            font-size: 18px;
+            font-weight: 100;
+            font-family: 'Jost', sans-serif;
+            color: #e8847c;
+            width: 40px;
+            text-align: center;
+        }
+
+        .end-leaderboard-name {
+            flex: 1;
+            font-size: 14px;
+            margin-left: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .end-leaderboard-score {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e8847c;
+            margin-left: 10px;
+        }
+
+        .end-leaderboard-details {
+            font-size: 10px;
+            opacity: 0.5;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        .end-game-status {
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .end-game-status.success {
+            color: #44ff44;
+        }
+
+        .end-game-status.error {
+            color: #ff4444;
         }
 
         /* ========== MOBILE LANDSCAPE RESPONSIVE ========== */
@@ -430,15 +1081,6 @@
                 font-size: 14px;
             }
 
-            /* Smaller throw indicator */
-            #throw-indicator {
-                width: 160px;
-                bottom: 140px;
-                right: 10px;
-                padding: 8px;
-                font-size: 12px;
-            }
-
             /* Smaller crosshair */
             #crosshair {
                 width: 40px;
@@ -452,25 +1094,32 @@
 
             /* Compact instructions modal */
             #instructions {
-                padding: 20px 30px;
-                max-width: 90vw;
+                padding: 10px 15px;
+                justify-content: flex-start;
+                padding-top: 10px;
+            }
+
+            #instructions #dude-preview {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 8px;
             }
 
             #instructions h1 {
-                font-size: 24px;
-                margin-bottom: 10px;
+                font-size: 22px;
+                margin-bottom: 6px;
             }
 
             #instructions p {
-                font-size: 14px;
-                line-height: 1.5;
-                margin-bottom: 8px;
+                font-size: 12px;
+                line-height: 1.4;
+                margin-bottom: 4px;
             }
 
             #instructions button {
-                margin-top: 10px;
-                padding: 10px 30px;
-                font-size: 16px;
+                margin-top: 8px;
+                padding: 10px 25px;
+                font-size: 14px;
             }
 
             /* Compact game over */
@@ -509,20 +1158,176 @@
                 padding: 10px 30px;
                 font-size: 16px;
             }
+
+            /* Compact leaderboard */
+            #leaderboard-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+                top: 10px;
+                right: 10px;
+            }
+
+            #leaderboard-modal h1 {
+                font-size: 28px;
+                margin-bottom: 15px;
+            }
+
+            #leaderboard-container {
+                padding: 10px;
+                max-height: 50vh;
+            }
+
+            .leaderboard-entry {
+                padding: 8px 10px;
+            }
+
+            .leaderboard-rank {
+                font-size: 18px;
+                width: 35px;
+            }
+
+            .leaderboard-name {
+                font-size: 13px;
+            }
+
+            .leaderboard-score {
+                font-size: 14px;
+            }
+
+            /* Compact submit modal */
+            #submit-score-modal h1 {
+                font-size: 24px;
+            }
+
+            #submit-score-modal .final-stats {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            #submit-score-modal .final-stats .score-value {
+                font-size: 24px;
+            }
+
+            .submit-form input {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+
+            .submit-buttons {
+                gap: 10px;
+            }
+
+            #submit-score-btn, #skip-submit-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            /* Compact end-game modal */
+            #end-game-modal {
+                padding: 15px;
+            }
+
+            .end-game-header {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .end-game-header img.dildo-img {
+                width: 50px;
+            }
+
+            .end-game-header img.beeple-img {
+                width: 80px;
+            }
+
+            .end-game-title {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+
+            .end-game-subtitle {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            .end-game-stats {
+                gap: 20px;
+                margin-bottom: 15px;
+            }
+
+            .stat-box {
+                padding: 10px 18px;
+            }
+
+            .stat-box .stat-value {
+                font-size: 28px;
+            }
+
+            .stat-box .stat-label {
+                font-size: 10px;
+            }
+
+            .end-game-name-section {
+                margin-bottom: 15px;
+            }
+
+            .end-game-name-section input {
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+
+            .end-game-actions {
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+
+            .end-game-actions button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .share-section {
+                margin-bottom: 15px;
+            }
+
+            .share-buttons button {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+
+            .end-game-leaderboard h2 {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .end-leaderboard-container {
+                max-height: 200px;
+                padding: 8px;
+            }
+
+            .end-leaderboard-entry {
+                padding: 8px 10px;
+            }
+
+            .end-leaderboard-rank {
+                font-size: 14px;
+                width: 30px;
+            }
+
+            .end-leaderboard-name {
+                font-size: 12px;
+            }
+
+            .end-leaderboard-score {
+                font-size: 13px;
+            }
         }
 
-        /* Even smaller screens (small phones) */
+        /* Even smaller screens (small phones landscape) */
         @media (max-height: 400px) and (orientation: landscape) {
             #webcam-container {
                 width: 120px;
                 height: 90px;
-            }
-
-            #throw-indicator {
-                width: 120px;
-                bottom: 110px;
-                font-size: 10px;
-                padding: 6px;
             }
 
             #score {
@@ -535,6 +1340,148 @@
 
             #level-name {
                 font-size: 14px;
+            }
+
+            /* Even more compact instructions */
+            #instructions #dude-preview {
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 5px;
+            }
+
+            #instructions h1 {
+                font-size: 18px;
+                margin-bottom: 4px;
+            }
+
+            #instructions p {
+                font-size: 11px;
+                margin-bottom: 3px;
+            }
+
+            #instructions button {
+                margin-top: 5px;
+                padding: 8px 20px;
+                font-size: 13px;
+            }
+
+            /* Compact end-game modal */
+            .end-game-header img {
+                width: 150px !important;
+            }
+
+            .end-game-title {
+                font-size: 20px !important;
+                margin-bottom: 5px !important;
+            }
+
+            .end-game-subtitle {
+                font-size: 12px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .stat-box .stat-value {
+                font-size: 22px !important;
+            }
+
+            .end-game-stats {
+                gap: 15px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .end-game-leaderboard {
+                display: none;
+            }
+        }
+
+        /* General mobile (portrait or small screens) */
+        @media (max-width: 600px) {
+            #instructions #dude-preview {
+                width: 120px;
+                height: 120px;
+            }
+
+            #instructions h1 {
+                font-size: 32px;
+            }
+
+            #instructions p {
+                font-size: 14px;
+            }
+
+            .end-game-header img {
+                width: 200px !important;
+            }
+
+            .end-game-title {
+                font-size: 32px;
+            }
+
+            .end-game-stats {
+                gap: 20px;
+            }
+
+            .stat-box .stat-value {
+                font-size: 32px;
+            }
+
+            .end-leaderboard-container {
+                max-height: 200px;
+            }
+        }
+
+        /* Very small screens (phones) */
+        @media (max-height: 600px) {
+            #instructions {
+                justify-content: flex-start;
+                padding-top: 15px;
+            }
+
+            #end-game-modal {
+                padding: 15px 10px;
+            }
+
+            .end-game-header img {
+                width: 180px !important;
+            }
+
+            .end-game-title {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+
+            .end-game-subtitle {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            .end-game-stats {
+                margin-bottom: 15px;
+            }
+
+            .stat-box {
+                padding: 10px 15px;
+            }
+
+            .stat-box .stat-value {
+                font-size: 28px;
+            }
+
+            .end-game-name-section {
+                margin-bottom: 12px;
+            }
+
+            .end-game-name-section input {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            .share-section {
+                margin-bottom: 15px;
+            }
+
+            .end-leaderboard-container {
+                max-height: 150px;
             }
         }
     </style>
@@ -583,9 +1530,6 @@
         <canvas id="hand-canvas"></canvas>
     </div>
 
-    <!-- Throw Indicator -->
-    <div id="throw-indicator">Move hand to aim</div>
-
     <!-- Instructions Modal -->
     <div id="instructions">
         <canvas id="dude-preview"></canvas>
@@ -593,6 +1537,108 @@
         <p>Knock Beeple down by throwing dildos at him.</p>
         <p>Put your hand up and make a throwing motion.</p>
         <button id="start-btn">Start Game</button>
+    </div>
+
+    <!-- Leaderboard Button -->
+    <button id="leaderboard-btn">Leaderboard</button>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboard-modal" class="hidden">
+        <h1>LEADERBOARD</h1>
+        <div id="leaderboard-container">
+            <div class="leaderboard-loading">Loading...</div>
+        </div>
+        <button class="close-btn" id="close-leaderboard-btn">Close</button>
+    </div>
+
+    <!-- Submit Score Modal -->
+    <div id="submit-score-modal" class="hidden">
+        <h1 id="submit-title">SUBMIT YOUR SCORE</h1>
+        <div class="final-stats">
+            <div>Level <span id="submit-level">1</span> | <span class="score-value"><span id="submit-score">0</span> pts</span></div>
+            <div style="font-size: 16px; margin-top: 5px; opacity: 0.7;"><span id="submit-throws">0</span> throws used</div>
+        </div>
+        <div class="submit-form">
+            <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20" autocomplete="off">
+            <div class="wallet-connect-section">
+                <span class="label">Optional: Connect wallet for verification</span>
+                <button id="connect-wallet-btn">Connect Wallet</button>
+                <div class="wallet-address hidden" id="wallet-address-display"></div>
+            </div>
+            <div class="submit-buttons">
+                <button id="submit-score-btn">Submit Score</button>
+                <button id="skip-submit-btn">Skip</button>
+            </div>
+            <div class="submit-status hidden" id="submit-status"></div>
+        </div>
+    </div>
+
+    <!-- End Game Modal (Game Over / Victory) -->
+    <div id="end-game-modal" class="hidden">
+        <!-- Header with branding image -->
+        <div class="end-game-header">
+            <img src="end-modal.png" alt="Beeple Blox" style="width: 280px; height: auto;">
+        </div>
+
+        <div class="end-game-title">BEEPLE BLOX</div>
+        <div class="end-game-subtitle" id="end-game-message">Game Over!</div>
+
+        <!-- Stats -->
+        <div class="end-game-stats">
+            <div class="stat-box">
+                <div class="stat-value" id="end-score">0</div>
+                <div class="stat-label">Points</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="end-throws">0</div>
+                <div class="stat-label">Throws</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="end-level">1</div>
+                <div class="stat-label">Level</div>
+            </div>
+        </div>
+
+        <!-- Name Input -->
+        <div class="end-game-name-section">
+            <input type="text" id="end-player-name" placeholder="Enter your name for the leaderboard" maxlength="20" autocomplete="off">
+            <div class="end-game-wallet-row">
+                <span>Optional:</span>
+                <button id="end-connect-wallet-btn">Connect Wallet</button>
+                <span class="end-game-wallet-address hidden" id="end-wallet-display"></span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="end-game-actions">
+            <button class="submit-btn" id="end-submit-btn">Submit Score</button>
+            <button class="play-again-btn" id="end-play-again-btn">Play Again</button>
+        </div>
+
+        <div class="end-game-status hidden" id="end-game-status"></div>
+
+        <!-- Share Section -->
+        <div class="share-section">
+            <div class="share-label">Share your score</div>
+            <div class="share-buttons">
+                <button class="twitter" id="share-twitter-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    Share on X
+                </button>
+                <button id="share-copy-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    Copy Link
+                </button>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="end-game-leaderboard">
+            <h2>LEADERBOARD</h2>
+            <div class="end-leaderboard-container" id="end-leaderboard-list">
+                <div class="leaderboard-loading">Loading...</div>
+            </div>
+        </div>
     </div>
 
     <!-- Babylon.js -->
@@ -607,8 +1653,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
 
+    <!-- Ethers.js for wallet connection -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+
     <!-- Game Code -->
     <script src="game.js"></script>
+
+    <!-- Leaderboard Code -->
+    <script src="leaderboard.js"></script>
 </body>
 </html>
 

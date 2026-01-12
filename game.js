@@ -11,7 +11,7 @@ const handCtx = handCanvas.getContext('2d');
 const crosshair = document.getElementById('crosshair');
 const scoreEl = document.getElementById('score');
 const throwsEl = document.getElementById('throws');
-const throwIndicator = document.getElementById('throw-indicator');
+// throwIndicator removed - was debug UI
 const instructions = document.getElementById('instructions');
 const startBtn = document.getElementById('start-btn');
 
@@ -1599,6 +1599,7 @@ async function loadStudioEnvironment(shadowGenerator) {
 
 // Dancing Beeple - ambient character in the scene
 let dancingBeeple = null;
+let dancingBeepleAnimations = []; // Store animations to restart after level changes
 
 async function loadDancingBeeple(shadowGenerator) {
     try {
@@ -1617,7 +1618,7 @@ async function loadDancingBeeple(shadowGenerator) {
         dancingBeeple = result.meshes[0];
 
         // Scale him up to be visible
-        const beepleScale = 3;
+        const beepleScale = 9;
         dancingBeeple.scaling = new BABYLON.Vector3(beepleScale, beepleScale, beepleScale);
 
         // Position him off to the side - visible but not in the play area
@@ -1634,8 +1635,9 @@ async function loadDancingBeeple(shadowGenerator) {
             mesh.isPickable = false; // Don't interfere with gameplay
         });
 
-        // Keep animations playing (dancing!)
+        // Keep animations playing (dancing!) and store them for later
         if (result.animationGroups && result.animationGroups.length > 0) {
+            dancingBeepleAnimations = result.animationGroups;
             result.animationGroups.forEach(anim => {
                 anim.play(true); // Loop the animation
                 console.log("Playing animation:", anim.name);
@@ -1647,6 +1649,34 @@ async function loadDancingBeeple(shadowGenerator) {
     } catch (error) {
         console.error("Error loading dancing_beeple.glb:", error);
     }
+}
+
+// Reposition dancing Beeple to a random spot and restart animations
+function repositionDancingBeeple() {
+    if (!dancingBeeple) return;
+
+    // Random positions around the play area (not blocking the action)
+    const positions = [
+        { x: 15, z: -5, rotY: -Math.PI / 3 },    // Right side
+        { x: -15, z: -5, rotY: Math.PI / 3 },    // Left side
+        { x: 0, z: -25, rotY: 0 },               // Far back center
+        { x: 12, z: -15, rotY: -Math.PI / 4 },   // Back right
+        { x: -12, z: -15, rotY: Math.PI / 4 },   // Back left
+        { x: 18, z: -10, rotY: -Math.PI / 2 },   // Far right
+        { x: -18, z: -10, rotY: Math.PI / 2 },   // Far left
+    ];
+
+    const pos = positions[Math.floor(Math.random() * positions.length)];
+    dancingBeeple.position.x = pos.x;
+    dancingBeeple.position.z = pos.z;
+    dancingBeeple.rotation.y = pos.rotY;
+
+    // Restart animations (in case they were stopped)
+    dancingBeepleAnimations.forEach(anim => {
+        anim.play(true);
+    });
+
+    console.log(`💃 Dancing Beeple moved to (${pos.x}, ${pos.z})`);
 }
 
 // ============================================
@@ -1960,8 +1990,8 @@ function throwBall() {
     currentThrowSoundIndex = (currentThrowSoundIndex + 1) % throwSounds.length;
 
     // Show throw feedback
-    throwIndicator.className = 'thrown';
-    throwIndicator.textContent = 'THROWN!';
+    // throwIndicator.className = 'thrown';
+    // throwIndicator.textContent = 'THROWN!';
 
     // Calculate throw direction from camera through crosshair position
     const screenX = handPosition.x * canvas.width;
@@ -1982,9 +2012,9 @@ function throwBall() {
 
         // Check if out of throws after cooldown (and dude hasn't fallen)
         if (throwsRemaining <= 0 && !dudeFallen) {
-            throwIndicator.className = 'thrown';
-            throwIndicator.textContent = 'No throws left!';
-            throwIndicator.style.background = 'rgba(255, 68, 68, 0.5)';
+            // throwIndicator.className = 'thrown';
+            // throwIndicator.textContent = 'No throws left!';
+            // throwIndicator.style.background = 'rgba(255, 68, 68, 0.5)';
 
             // Give a moment to see if dude falls from last throw
             setTimeout(() => {
@@ -1993,8 +2023,8 @@ function throwBall() {
                 }
             }, 2000);
         } else {
-            throwIndicator.className = 'ready';
-            throwIndicator.textContent = 'Ready to throw!';
+            // throwIndicator.className = 'ready';
+            // throwIndicator.textContent = 'Ready to throw!';
         }
     }, throwCooldown);
 }
@@ -2053,22 +2083,22 @@ function checkScore() {
             console.log(`DUDE ${index + 1} KNOCKED DOWN! (${dudesFallenCount}/${totalDudes})`);
 
             // Show message
-            throwIndicator.className = 'thrown';
+            // throwIndicator.className = 'thrown';
             if (dudesFallenCount < totalDudes) {
-                throwIndicator.textContent = `🎉 DUDE DOWN! ${dudesFallenCount}/${totalDudes} +1000 🎉`;
-                throwIndicator.style.background = 'rgba(255, 200, 68, 0.8)';
+                // throwIndicator.textContent = `🎉 DUDE DOWN! ${dudesFallenCount}/${totalDudes} +1000 🎉`;
+                // throwIndicator.style.background = 'rgba(255, 200, 68, 0.8)';
                 // Reset visual feedback after a moment
                 setTimeout(() => {
                     scoreEl.style.transform = 'scale(1)';
                     scoreEl.style.color = '#ff4444';
-                    throwIndicator.className = 'ready';
-                    throwIndicator.textContent = 'Keep going!';
-                    throwIndicator.style.background = 'rgba(68, 255, 68, 0.3)';
+                    // throwIndicator.className = 'ready';
+                    // throwIndicator.textContent = 'Keep going!';
+                    // throwIndicator.style.background = 'rgba(68, 255, 68, 0.3)';
                 }, 1000);
             } else {
                 // ALL dudes down - level complete!
-                throwIndicator.textContent = `🎉 ALL DUDES DOWN! +1000 🎉`;
-                throwIndicator.style.background = 'rgba(68, 255, 68, 0.8)';
+                // throwIndicator.textContent = `🎉 ALL DUDES DOWN! +1000 🎉`;
+                // throwIndicator.style.background = 'rgba(68, 255, 68, 0.8)';
 
                 // Show level complete after a short delay
                 setTimeout(() => {
@@ -2192,14 +2222,14 @@ function onHandResults(results) {
 
         // Update throw indicator
         if (canThrow && gameStarted) {
-            throwIndicator.className = 'ready';
+            // throwIndicator.className = 'ready';
         }
     } else {
         // No hand detected
         if (gameStarted) {
-            throwIndicator.className = '';
-            throwIndicator.textContent = 'Show your hand to aim';
-            throwIndicator.style.background = 'rgba(0, 0, 0, 0.7)';
+            // throwIndicator.className = '';
+            // throwIndicator.textContent = 'Show your hand to aim';
+            // throwIndicator.style.background = 'rgba(0, 0, 0, 0.7)';
         }
     }
 }
@@ -2239,9 +2269,19 @@ function updateThrowsUI() {
 
 function showGameOver() {
     gameStarted = false;
-    gameOverEl.classList.remove('hidden');
-    finalLevelEl.textContent = currentLevel;
-    finalScoreEl.textContent = score;
+
+    // Show the new end-game modal with leaderboard and share options
+    if (window.BeepleLeaderboard) {
+        window.BeepleLeaderboard.showEndGameModal(score, throws, currentLevel, false, () => {
+            // When "Play Again" is clicked, restart the game
+            restartGame();
+        });
+    } else {
+        // Fallback to old game over screen if leaderboard not loaded
+        gameOverEl.classList.remove('hidden');
+        finalLevelEl.textContent = currentLevel;
+        finalScoreEl.textContent = score;
+    }
 }
 
 function showLevelComplete() {
@@ -2270,10 +2310,18 @@ async function nextLevel() {
 
     // Check if we've beaten all levels
     if (currentLevel > LEVELS.length) {
-        // Victory! Show game complete message
-        throwIndicator.textContent = '🏆 YOU WIN! All levels complete! 🏆';
-        throwIndicator.className = 'thrown';
-        throwIndicator.style.background = 'rgba(255, 215, 0, 0.8)';
+        // Victory! Show the end-game modal with victory state
+        gameStarted = false;
+        if (window.BeepleLeaderboard) {
+            window.BeepleLeaderboard.showEndGameModal(score, throws, LEVELS.length, true, () => {
+                // When "Play Again" is clicked, restart the game
+                restartGame();
+            });
+        } else {
+            // throwIndicator.textContent = 'YOU WIN! All levels complete!';
+            // throwIndicator.className = 'thrown';
+            // throwIndicator.style.background = 'rgba(255, 215, 0, 0.8)';
+        }
         return;
     }
 
@@ -2287,12 +2335,15 @@ async function nextLevel() {
     const shadowGenerator = scene.lights[1]?.getShadowGenerator?.();
     await createTower(shadowGenerator);
 
+    // Move dancing Beeple to a new spot and restart his dance
+    repositionDancingBeeple();
+
     // Re-enable physics
     scene.physicsEnabled = true;
 
-    throwIndicator.className = 'ready';
-    throwIndicator.textContent = 'Move hand forward to throw!';
-    throwIndicator.style.background = 'rgba(68, 255, 68, 0.3)';
+    // throwIndicator.className = 'ready';
+    // throwIndicator.textContent = 'Move hand forward to throw!';
+    // throwIndicator.style.background = 'rgba(68, 255, 68, 0.3)';
 }
 
 async function restartGame() {
@@ -2318,6 +2369,9 @@ async function restartGame() {
     const shadowGenerator = scene.lights[1]?.getShadowGenerator?.();
     await createTower(shadowGenerator);
 
+    // Reset dancing Beeple
+    repositionDancingBeeple();
+
     // Show instructions again
     instructions.classList.remove('hidden');
     gameStarted = false;
@@ -2334,8 +2388,8 @@ function startGame() {
     // Clean up preview renderer
     disposeDudePreview();
 
-    throwIndicator.className = 'ready';
-    throwIndicator.textContent = 'Ready to throw!';
+    // throwIndicator.className = 'ready';
+    // throwIndicator.textContent = 'Ready to throw!';
 
     // Initialize level system
     currentLevel = getStartingLevel();
@@ -2368,9 +2422,9 @@ async function resetGame() {
     updateThrowsUI();
 
     if (gameStarted) {
-        throwIndicator.className = 'ready';
-        throwIndicator.textContent = 'Move hand forward to throw!';
-        throwIndicator.style.background = 'rgba(68, 255, 68, 0.3)';
+        // throwIndicator.className = 'ready';
+        // throwIndicator.textContent = 'Move hand forward to throw!';
+        // throwIndicator.style.background = 'rgba(68, 255, 68, 0.3)';
     }
 
     // Get shadow generator reference
