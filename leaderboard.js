@@ -152,7 +152,6 @@ function renderLeaderboard(entries, containerEl, highlightName = null) {
     const html = entries.map((entry, index) => {
         const rank = index + 1;
         const isTop3 = rank <= 3;
-        const displayScore = Math.abs(entry.score);
         const isHighlight = highlightName && entry.name === highlightName;
 
         // Check if using end-game modal styles
@@ -170,9 +169,9 @@ function renderLeaderboard(entries, containerEl, highlightName = null) {
                     ${escapeHtml(entry.name)}
                     ${entry.address ? `<span style="opacity: 0.4; font-size: 10px;"> (${shortenAddress(entry.address)})</span>` : ''}
                 </div>
-                <div class="${scoreClass}">${displayScore.toLocaleString()}</div>
+                <div class="${scoreClass}">Lvl ${entry.level || '?'}</div>
                 <div class="${detailsClass}">
-                    Lvl ${entry.level || '?'} | ${entry.throws || '?'} throws
+                    ${entry.throws || '?'} throws
                 </div>
             </div>
         `;
@@ -205,8 +204,11 @@ function hideLeaderboard() {
 
 async function submitScore(name, scoreValue, throwsValue, levelValue, address = null) {
     try {
-        // Store score as negative so higher scores rank better (API sorts ascending)
-        const sortScore = -Math.abs(scoreValue);
+        // Ranking: higher level first, then fewer throws wins (API sorts ascending)
+        // Formula: -level * 10000 + throws
+        // e.g., Level 20 with 50 throws = -199950, Level 20 with 100 throws = -199900
+        // Lower values rank higher, so fewer throws at same level = better rank
+        const sortScore = -(levelValue * 10000) + throwsValue;
 
         const payload = {
             game: GAME_SLUG,
