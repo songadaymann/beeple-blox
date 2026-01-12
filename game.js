@@ -2287,6 +2287,20 @@ function showGameOver() {
 function showLevelComplete() {
     const levelData = LEVELS[currentLevel - 1] || LEVELS[0];
 
+    // Check if this was the final level (level 20)
+    if (currentLevel >= MAX_LEVEL) {
+        // Victory! Show the end-game modal with victory state
+        gameStarted = false;
+        scene.physicsEnabled = false;
+        if (window.BeepleLeaderboard) {
+            window.BeepleLeaderboard.showEndGameModal(score, throws, currentLevel, true, () => {
+                // When "Play Again" is clicked, restart the game
+                restartGame();
+            });
+        }
+        return;
+    }
+
     levelCompleteEl.classList.remove('hidden');
     completedLevelNameEl.textContent = levelData.name;
     throwsSavedEl.textContent = throwsRemaining;
