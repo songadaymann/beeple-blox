@@ -70,7 +70,7 @@ const LEVELS = [
     // Level 1: Big platform on 4 large cube supports (doubled sizes)
     {
         name: "Level 1",
-        description: "Knock down the dude!",
+        description: "",
         dudePosition: { x: 0, z: -8 },
         blocks: [
             // 4 large cube supports at corners (4x4x4 cubes, y=2 puts bottom on ground)
@@ -86,7 +86,7 @@ const LEVELS = [
     // Level 2: Jenga Tower (middle blocks missing)
     {
         name: "Level 2",
-        description: "Knock down the dude!",
+        description: "",
         dudePosition: { x: 0, z: -8 },
         blocks: [
             // Layer 1 - 2 outer blocks along X (y = 0.8)
@@ -112,7 +112,7 @@ const LEVELS = [
     // Level 3: Table with Jail Bars
     {
         name: "Level 3",
-        description: "Knock down the dude!",
+        description: "",
         dudePosition: { x: 0, z: -8 },
         blocks: [
             // Table legs - 4 thin pillars (y = 2.5 puts bottom on ground, top at y=5)
@@ -134,7 +134,7 @@ const LEVELS = [
     // Level 4: Staircase (side view, fully supported) - TWO DUDES!
     {
         name: "Level 4",
-        description: "Knock down BOTH dudes!",
+        description: "",
         dudePositions: [
             { x: -4, z: -8 },  // Dude on step 1 (lowest)
             { x: 0, z: -8 },   // Dude on step 2 (middle)
@@ -155,7 +155,7 @@ const LEVELS = [
     // Level 5: Double Lockdown - Two fortified jail cells
     {
         name: "Level 5",
-        description: "Knock down BOTH dudes!",
+        description: "",
         dudePositions: [
             { x: -5, z: -8 },  // Dude in left jail
             { x: 5, z: -8 },   // Dude in right jail
@@ -198,7 +198,7 @@ const LEVELS = [
     // Level 6: Three Tables - 3 separate tables in triangle formation
     {
         name: "Level 6",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -6, z: -5 },   // Front left table
             { x: 6, z: -5 },    // Front right table
@@ -231,7 +231,7 @@ const LEVELS = [
     // Level 7: Staircase Towers - 3 towers at different heights
     {
         name: "Level 7",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -6, z: -6 },   // Short tower, close
             { x: 0, z: -10 },   // Medium tower, middle
@@ -255,7 +255,7 @@ const LEVELS = [
     // Level 8: The Pyramid - beeples at each level
     {
         name: "Level 8",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -4, z: -8 },  // Bottom left
             { x: 4, z: -8 },   // Bottom right
@@ -279,7 +279,7 @@ const LEVELS = [
     // Level 9: The Shooting Gallery - targets at different depths
     {
         name: "Level 9",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -6, z: -5 },   // Front left (easy)
             { x: 6, z: -9 },    // Middle right (medium)
@@ -311,7 +311,7 @@ const LEVELS = [
     // Level 10: The Gauntlet - 3 different challenges
     {
         name: "Level 10",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -7, z: -6 },
             { x: 0, z: -12 },
@@ -341,7 +341,7 @@ const LEVELS = [
     // Level 11: Domino Chaos - two domino lines, beeples scattered
     {
         name: "Level 11",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -6, z: -6 },   // Start of front line
             { x: 6, z: -6 },    // End of front line
@@ -374,7 +374,7 @@ const LEVELS = [
     // Level 12: The Bridge - two platforms connected by planks
     {
         name: "Level 12",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -6, z: -8 },
             { x: 0, z: -8 },   // On the bridge
@@ -403,7 +403,7 @@ const LEVELS = [
     // Level 13: Double Cage - two cages at different heights
     {
         name: "Level 13",
-        description: "Knock down BOTH dudes!",
+        description: "",
         dudePositions: [
             { x: -5, z: -8 },   // Left cage (ground level)
             { x: 5, z: -8 },    // Right cage (elevated)
@@ -430,7 +430,7 @@ const LEVELS = [
     // Level 14: Twin Skyscrapers - two towers at different depths
     {
         name: "Level 14",
-        description: "Knock down BOTH dudes!",
+        description: "",
         dudePositions: [
             { x: -5, z: -6 },   // Front tower
             { x: 5, z: -12 },   // Back tower (taller)
@@ -455,7 +455,7 @@ const LEVELS = [
     // Level 15: The Amphitheater - semicircle of platforms
     {
         name: "Level 15",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -6, z: -6 },
             { x: 0, z: -10 },
@@ -478,7 +478,7 @@ const LEVELS = [
     // Level 16: Double House of Cards - two precarious structures
     {
         name: "Level 16",
-        description: "Knock down BOTH dudes!",
+        description: "",
         dudePositions: [
             { x: -5, z: -6 },   // Front left structure
             { x: 5, z: -12 },   // Back right structure (taller)
@@ -507,7 +507,7 @@ const LEVELS = [
     // Level 17: The Zigzag - staggered path of blocks
     {
         name: "Level 17",
-        description: "Knock down BOTH dudes!",
+        description: "",
         dudePositions: [
             { x: -4, z: -5 },
             { x: 4, z: -11 },
@@ -527,7 +527,7 @@ const LEVELS = [
     // Level 18: The Fortress - multiple defenders at different positions
     {
         name: "Level 18",
-        description: "Knock down all THREE dudes!",
+        description: "",
         dudePositions: [
             { x: -6, z: -6 },   // Outside left (easy)
             { x: 6, z: -6 },    // Outside right (easy)
@@ -562,7 +562,7 @@ const LEVELS = [
     // Level 19: The Variety Pack - 4 beeples on different structures
     {
         name: "Level 19",
-        description: "Knock down all FOUR dudes!",
+        description: "",
         dudePositions: [
             { x: -7, z: -5 },   // Wobbly pillar tower (front left)
             { x: 7, z: -5 },    // Table (front right)
@@ -599,7 +599,7 @@ const LEVELS = [
     // Level 20: The Final Boss - everything combined
     {
         name: "Level 20",
-        description: "Knock down all FIVE dudes!",
+        description: "",
         dudePositions: [
             { x: -8, z: -5 },
             { x: 8, z: -5 },
