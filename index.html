@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-ogp-key" content="64ee7b61-3b07-437b-bcea-565ee94a0ddc" id="ogp-key-meta">
     <title>BEEPLE BLOX</title>
     <!-- Jost font (thin) + Space Grotesk for contrast -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1655,6 +1656,31 @@
 
     <!-- Ethers.js for wallet connection -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+
+    <!-- Play.fun SDK (OpenGameProtocol) -->
+    <script src="https://sdk.play.fun"></script>
+    <script>
+        let playfunSDK = null;
+
+        async function initPlayFun() {
+            if (typeof OpenGameSDK === 'undefined') {
+                console.warn('Play.fun SDK not loaded');
+                return;
+            }
+            try {
+                playfunSDK = new OpenGameSDK({
+                    ui: { usePointsWidget: true }
+                });
+                await playfunSDK.init();
+                console.log('Play.fun SDK initialized');
+            } catch (e) {
+                console.warn('Play.fun SDK failed:', e);
+                playfunSDK = null;
+            }
+        }
+
+        initPlayFun();
+    </script>
 
     <!-- Game Code -->
     <script src="game.js"></script>

@@ -2045,6 +2045,7 @@ function checkScore() {
                 block.metadata.scored = true;
                 score += 100;
                 scoreEl.textContent = score;
+                if (window.playfunSDK) window.playfunSDK.addPoints(100);
 
                 // Visual feedback - flash the score
                 scoreEl.style.transform = 'scale(1.2)';
@@ -2075,6 +2076,7 @@ function checkScore() {
 
             score += 1000; // Bonus for each dude knocked down!
             scoreEl.textContent = score;
+            if (window.playfunSDK) window.playfunSDK.addPoints(1000);
 
             // Visual feedback
             scoreEl.style.transform = 'scale(1.5)';
@@ -2270,6 +2272,9 @@ function updateThrowsUI() {
 function showGameOver() {
     gameStarted = false;
 
+    // Save points to Play.fun
+    if (window.playfunSDK) window.playfunSDK.savePoints();
+
     // Show the new end-game modal with leaderboard and share options
     if (window.BeepleLeaderboard) {
         window.BeepleLeaderboard.showEndGameModal(score, throws, currentLevel, false, () => {
@@ -2292,6 +2297,8 @@ function showLevelComplete() {
         // Victory! Show the end-game modal with victory state
         gameStarted = false;
         scene.physicsEnabled = false;
+        // Save points to Play.fun
+        if (window.playfunSDK) window.playfunSDK.savePoints();
         if (window.BeepleLeaderboard) {
             window.BeepleLeaderboard.showEndGameModal(score, throws, currentLevel, true, () => {
                 // When "Play Again" is clicked, restart the game
