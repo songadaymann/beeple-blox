@@ -1660,7 +1660,7 @@
     <!-- Play.fun SDK (OpenGameProtocol) -->
     <script src="https://sdk.play.fun"></script>
     <script>
-        let playfunSDK = null;
+        window.playfunSDK = null;
 
         async function initPlayFun() {
             if (typeof OpenGameSDK === 'undefined') {
@@ -1668,18 +1668,23 @@
                 return;
             }
             try {
-                playfunSDK = new OpenGameSDK({
+                window.playfunSDK = new OpenGameSDK({
                     ui: { usePointsWidget: true }
                 });
-                await playfunSDK.init();
+                await window.playfunSDK.init();
                 console.log('Play.fun SDK initialized');
             } catch (e) {
                 console.warn('Play.fun SDK failed:', e);
-                playfunSDK = null;
+                window.playfunSDK = null;
             }
         }
 
         initPlayFun();
+
+        // Save points if player closes tab mid-game
+        window.addEventListener('beforeunload', () => {
+            if (window.playfunSDK) window.playfunSDK.savePoints();
+        });
     </script>
 
     <!-- Game Code -->
